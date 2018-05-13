@@ -1,0 +1,30 @@
+body { 
+  text-rendering: optimizeLegibility;
+  background-color: rgb(224, 224, 224);
+  font-size: 24px;
+}
+
+.loadingclass{
+  
+  top: 200px;
+  text-align: center;
+}
+
+#sketch-holder{
+  text-align: center;
+  margin: auto;
+  display: flex;
+  margin-top: 20px; 
+  justify-content: center;
+  align-content: center;
+}
+
+header, main, footer {
+  padding-left: 300px;
+}
+
+@media only screen and (max-width : 992px) {
+  header, main, footer {
+    padding-left: 0;
+  }
+}

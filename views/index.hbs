@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>{{title}}</title>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Juego de niños</title>
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+   <link type="text/css" rel="stylesheet" href="/stylesheets/materialize.min.css"  media="screen,projection"/>
+   <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+   <div id="app">
+      <nav>
+         <div class="nav-wrapper grey darken-4">
+            <a href="#" class="brand-logo center-align">X</a>
+            <a href="#" data-target="slide-out" class="sidenav-trigger">
+               <i class="material-icons">menu</i>
+            </a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+               <li>
+                  <a id="train" class="waves-effect waves-light btn grey lighten-4">
+                     <span class="grey-text text-darken-4">Entrenar</span>
+                  </a>
+               </li>
+               <li>
+                  <a id="test" class="waves-effect waves-light btn grey lighten-4">
+                     <span class="grey-text text-darken-4">Testear</span>
+                  </a>
+               </li>
+               <li>
+                  <a id="clear" class="waves-effect waves-light btn grey lighten-4">
+                     <span class="grey-text text-darken-4">Limpiar dibujo</span>
+                  </a>
+               </li>
+               <li>
+                  <a id="guess" class="waves-effect waves-light btn grey lighten-4">
+                     <span class="grey-text text-darken-4">Estimar</span>
+                  </a>
+               </li>
+               <li>
+                  <a id="store" class="waves-effect waves-light btn grey lighten-4">
+                     <span class="grey-text text-darken-4">Guardar Modelo</span>
+                  </a>
+               </li>
+            </ul>
+         </div>
+      </nav>
+      <ul id="slide-out" class="sidenav">
+         <li>
+            <div class="user-view">
+               <div class="background">
+                  <img src="">
+               </div>
+               <a href="#user">
+                  <img class="circle" src="">
+               </a>
+               <a href="#name">
+                  <span class="white-text name">John Doe</span>
+               </a>
+               <a href="#email">
+                  <span class="white-text email">jdandturk@gmail.com</span>
+               </a>
+            </div>
+         </li>
+         <li>
+            <a href="#!">
+               <i class="material-icons">cloud</i>First Link With Icon</a>
+         </li>
+         <li>
+            <a id="clear" class="waves-effect waves-light btn grey lighten-4">
+               <span class="grey-text text-darken-4">Limpiar dibujo</span>
+            </a>
+         </li>
+         <li>
+            <div class="divider"></div>
+         </li>
+         <li>
+            <a class="subheader">Subheader</a>
+         </li>
+         <li>
+            <a class="waves-effect" href="#!">Third Link With Waves</a>
+         </li>
+      </ul>
+
+      <div class="container">
+         <div class="row">
+            <div class="col m6">
+               <h3>Dibuja un:
+                  <span id="nameDraw"></span>
+               </h3>
+               <h3>Puntaje:
+                  <span id="score"></span>
+               </h3>
+               <h3>Porcentaje de éxito del:
+                  <span id="porcent"></span>
+               </h3>
+               <ul id="data-porcent">
+               </ul>
+            </div>
+            <div class="col m6 loadingclass">
+               <div id="p5_loading">
+                  <div class="preloader-wrapper big active">
+                     <div class="spinner-layer spinner-blue-only">
+                        <div class="circle-clipper left">
+                           <div class="circle"></div>
+                        </div>
+                        <div class="gap-patch">
+                           <div class="circle"></div>
+                        </div>
+                        <div class="circle-clipper right">
+                           <div class="circle"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col m6">
+
+               <div id="sketch-holder"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <script src="/socket.io/socket.io.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+   <script type="text/javascript" src="lib/jquery-3.3.1.slim.min.js"></script>
+   <script type="text/javascript" src="lib/materialize.min.js"></script>
+   <script type="text/javascript" src="libraries/p5.min.js"></script>
+   <script type="text/javascript" src="libraries/p5.dom.min.js"></script>
+   <script type="text/javascript" src="loadbinary.js"></script>
+   <script type="text/javascript" src="traintest.js"></script>
+   <script type="text/javascript" src="dataprep.js"></script>
+   <script type="text/javascript" src="sketch.js"></script>
+   <script type="text/javascript" src="libraries/nn.js"></script>
+   <script type="text/javascript" src="libraries/matrix.js"></script>
+   <script></script>
+</body>
+
+</html>
