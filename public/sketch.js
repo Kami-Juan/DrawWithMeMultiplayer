@@ -1,216 +1,259 @@
-// const len = 784;
-// const totalData = 1000;
-
-// let labels = 
-// [
-//   {
-//     nombre: "arcoiris",
-//     valor: 0,
-//     dataRaw: "",
-//     data: {}
-//   },
-//   {
-//     nombre: "gato",
-//     valor: 1,
-//     dataRaw: "",
-//     data: {}
-//   },
-//   {
-//     nombre: "tren",
-//     valor: 2,
-//     dataRaw: "",
-//     data: {}
-//   }
-// ];
-
-// let targets = [0, 0, 0];
-
-// let nn;
-// let test;
-
-// function preload() {
-
-//   $(document).ready(function(){
-//     $('.sidenav').sidenav();
-//   });
-
-//   if (localStorage.getItem("nn")) {
-//     //nn = NeuralNetwork.deserialize(localStorage.getItem("nn"));
-//     //test = loadStrings("data/childNetwork.txt");
-//     //console.log(test);
-//   } else {
-//     // Making the neural network
-//     nn = new NeuralNetwork(784, 64, labels.length);
-//   }
-
-//   labels[0].dataRaw = loadBytes("data/rainbows1000.bin");
-//   labels[1].dataRaw = loadBytes("data/cats1000.bin");
-//   labels[2].dataRaw = loadBytes("data/trains1000.bin");
-//   /* labels[3].dataRaw = loadBytes("data/triangle1000.bin"); */
-// }
-
-// function setup() {
-//   let cv;  
-//   if( windowWidth <= 459){
-//     cv = createCanvas(windowWidth-60, windowWidth-60);    
-//   }else{
-//     cv = createCanvas(400, 400);        
-//   }
-
-  
-//   cv.parent("sketch-holder");
-//   background(255);
-
-//   // Preparing the data
-//   for(let z = 0; z < labels.length; z++){
-//     prepareData(labels[z].data, labels[z].dataRaw, labels[z].valor);  
-//   }
-
-  
-
-//   // Randomizing the data
-//   let training = [];
-//   let testing = [];
-
-//   for( let r = 0; r < labels.length; r++ ){
-//     training = training.concat(labels[r].data.training);
-//     testing = testing.concat(labels[r].data.testing);  
-//   }
-
-//   let trainButton = select("#train");
-//   let epochCounter = 0;
-
-//   trainButton.mousePressed(function() {
-//     trainEpoch(training);
-//     epochCounter = epochCounter + 1;
-//     // const dataTrain = nn.serialize();
-//     // localStorage.setItem("nn", dataTrain);
-//     console.log("Epoch: " + epochCounter);
-//   });
-
-//   let testButton = select("#test");
-
-//   testButton.mousePressed(function() {
-//     let percent = testAll(testing);
-//     console.log("Percent: " + nf(percent, 2, 2) + "%");
-//   });
-
-//   let nombreDibujo = select("#nameDraw");
-//   nombreDibujo.html("arcoiris");  
-
-//   let puntaje = select("#score");
-//   puntaje.html(0);
-
-//   let scoreCont = 0;
-//   let guessButton = select("#guess");
-//   let porcentDraw = select("#porcent");
-//   let dataPorcent = $("#data-porcent");
-
-//   let dibujos = labels;
-
-//   guessButton.mousePressed(function() {
-//     let inputs = [];
-//     let img = get();
-//     img.resize(28, 28);
-//     img.loadPixels();
-//     for (let i = 0; i < len; i++) {
-//       let bright = img.pixels[i * 4];
-//       inputs[i] = (255 - bright) / 255.0;
-//     }
-
-//     let guess = nn.predict(inputs);
-//     console.log(guess);
-
-//     let m = max(guess);    
-//     let classification = guess.indexOf(m);
-//     console.log(classification);
-//     console.log(dibujos[0].valor);
-
-//     /* let pI = "";
-
-//     porcentDraw.html(guess[dibujos[0].valor]*100);
-//      for (let f = 0; f < labels.length; f++) {
-//       pI += "<li>"+ dibujos[f].nombre +" porcentaje: "+ guess[dibujos[f].valor] +"</li>";   
-//     }
-
-//     dataPorcent.append(pI); */
-
-//     if(dibujos[0].valor === classification){
-//       scoreCont++;
-//       console.log(dibujos[0].nombre);
-//       puntaje.html(scoreCont);
-//       shuffle(dibujos, true);
-//       nombreDibujo.html(dibujos[0].nombre);
-//       background(255);  
-//     }      
-    
-    
-//   });
-
-//   let clearButton = select("#clear");
-//   clearButton.mousePressed(function() {
-//     background(255);
-//   });
-
-//   let storeButton = select("#store");
-//   storeButton.mousePressed(function() {
-//     saveJSON(nn, "childNetwork");
-//   });
-// }
-
-// function draw() {
-//   strokeWeight(8);
-//   stroke(0);
-//   if (mouseIsPressed) {
-//     line(pmouseX, pmouseY, mouseX, mouseY);
-//   }
-// }
-
 let vm = new Vue({
   el: "#app",
+  delimiters: ['${', '}'],
   data: {
+    epochCounter: 0,
+    nn: "",
     len: 784,
     totalData: 1000,    
     socket: "",
-    puntaje: ""
+    puntaje: "",
+    labels :
+    [
+      {
+        nombre: "gato",
+        valor: 0,
+        dataRaw: "",
+        data: {}
+      },
+      {
+        nombre: "tren",
+        valor: 1,
+        dataRaw: "",
+        data: {}
+      },
+      {
+        nombre: "arcoiris",
+        valor: 2,
+        dataRaw: "",
+        data: {}
+      },
+      {
+        nombre: "pajaro",
+        valor: 3,
+        dataRaw: "",
+        data: {}
+      }
+    ],
+    training: [],
+    testing: [],
+    score: 0,
+    nombreDibujo: "",
+    usuarios: "",
+    msg: "",
+    isTrained: false,
+    mensajes: [],
+    tipoDibujo: [
+      {
+        tipo:"gato",
+        valor: 0
+      },
+      {
+        tipo:"tren",
+        valor: 1
+      },
+      {
+        tipo:"arcoiris",
+        valor: 2
+      },
+      {
+        tipo:"pajaro",
+        valor: 3
+      }
+    ]
   },
   methods: {
     enviarScore() {
       this.socket.emit("puntaje", this.puntaje);
+    },
+    prepareData (category, data, label) {
+      category.training = [];
+      category.testing = [];
+      for (let i = 0; i < this.totalData; i++) {
+        let offset = i * this.len;
+        let threshold = floor(0.8 * this.totalData);
+        if (i < threshold) {
+          category.training[i] = data.bytes.subarray(offset, offset + this.len);
+          category.training[i].label = label;
+        } else {
+          category.testing[i - threshold] = data.bytes.subarray(offset, offset + this.len);
+          category.testing[i - threshold].label = label;
+        }
+      }
+    },
+    trainEpoch () {
+      shuffle(this.training, true);
+      for (let i = 0; i < this.training.length; i++) {
+        let data = this.training[i];
+        let inputs = Array.from(data).map(x => x / 255);
+        let label = this.training[i].label;
+        let targets = [0, 0, 0, 0];
+        targets[label] = 1;
+        this.nn.train(inputs, targets);
+      }
+    },
+    testAll () {
+      let correct = 0;
+      // Train for one epoch
+      for (let i = 0; i < this.testing.length; i++) {
+        let data = this.testing[i];
+        let inputs = Array.from(data).map(x => x / 255);
+        let label = this.testing[i].label;
+        let guess = this.nn.predict(inputs);
+
+        let m = max(guess);
+        let classification = guess.indexOf(m);
+
+        if (classification === label) {
+          correct++;
+        }
+      }
+      let percent = 100 * correct / this.testing.length;
+      return percent;
+    },
+    loadNeuralNetwork () {
+      if( localStorage.getItem("nn") ){
+        this.nn = NeuralNetwork.deserialize(localStorage.getItem("nn"));    
+        this.isTrained = true;
+      }else{
+        // Making the neural network      
+        this.nn = new NeuralNetwork(784, 64, this.labels.length);    
+      }
+    },
+    train () {
+      this.trainEpoch();
+      this.epochCounter++;
+      const dataTrain = this.nn.serialize();
+      localStorage.removeItem("nn");
+      localStorage.setItem("nn", dataTrain);
+      console.log("Epoch: " + this.epochCounter);
+    },
+    test () {
+      let percent = this.testAll(this.testing);
+      console.log("Percent: " + nf(percent, 2, 2) + "%");
+    },
+    clearCanvas () {
+      background(255);
+      this.nombreDibujo = "";
+    },
+    guess () {
+      let inputs = [];
+      let img = get();
+      img.resize(28, 28);
+      img.loadPixels();
+      for (let i = 0; i < this.len; i++) {
+        let bright = img.pixels[i * 4];
+        inputs[i] = (255 - bright) / 255.0;
+      }
+  
+      let guess = this.nn.predict(inputs);
+      let m = max(guess);
+      let classification = guess.indexOf(m);
+      // console.log(classification);
+      this.playGame(classification);
+      this.nombreDibujo = "";
+    },
+    playGame (type) {
+      console.log(type);
+      let isError = true;
+      for (let i = 0; i < this.labels.length; i++) {
+        if(type === this.tipoDibujo[0].valor){
+          console.log(this.tipoDibujo[0].tipo);
+          this.score++;
+          this.clearCanvas();
+          shuffle(this.tipoDibujo, true)
+          // console.log(this.tipoDibujo)
+          isError = false
+          this.socket.emit('updateScore', this.score);
+        }      
+      }
+      if(isError) {
+        this.score--;
+        this.socket.emit('updateScore', this.score);
+      }
+    },
+    guessPress () {
+      let inputs = [];
+      let img = get();
+      img.resize(28, 28);
+      img.loadPixels();
+      for (let i = 0; i < this.len; i++) {
+        let bright = img.pixels[i * 4];
+        inputs[i] = (255 - bright) / 255.0;
+      }
+  
+      let guess = this.nn.predict(inputs);
+      let m = max(guess);
+      let classification = guess.indexOf(m);
+
+      switch (classification) {
+        case 0:
+          this.nombreDibujo = "Es un gato!";
+        break;
+        case 1:
+          this.nombreDibujo = "Es un tren!";          
+        break;
+        case 2:
+          this.nombreDibujo = "Es un arcoiris!";          
+        break;
+        case 3:
+          this.nombreDibujo = "Es un pájaro!";          
+        break;
+        default:
+          this.nombreDibujo = "NO se que es :c!";
+        break;
+      }
     }
   },
   mounted() {
     this.socket = io();
-    this.socket.on("resultado", function(msg) {
-      console.log(msg);
+    let params = {};
+    params.room = localStorage.getItem("room");
+    params.name = localStorage.getItem("username");
+
+    this.socket.on('connect', () => {
+      
+      this.socket.emit('join', params ,(err) =>{
+        if(err){
+          console.log(err)
+          localStorage.removeItem("room");
+          localStorage.removeItem("username");
+          window.location.href = '/login';    
+        }else{
+          console.log('No hay errores');
+          this.socket.emit('roomie', params, () => {});
+        }
+      });
+    });
+
+    this.socket.on('disconnect',() => {
+      console.log('servidor desconectado');
+    });
+
+    this.socket.on('updateUserList', (users) => {
+      this.usuarios = users;
+      console.log(users)
+    });
+
+    this.socket.on('newMensaje', (msg) => {
+      this.mensajes.push(msg);
+    });
+
+    this.socket.on('newScoreUser',  (msg) => {
+      this.mensajes.push(msg);
     });
   }
 });
-const CAT = 0;
-const RAINBOW = 1;
-const TRAIN = 2;
-
-let catsData;
-let trainsData;
-let rainbowsData;
-
-let cats = {};
-let trains = {};
-let rainbows = {};
 
 let nn;
 
 function preload() {
-  if( localStorage.getItem("nn") ){
-    nn = NeuralNetwork.deserialize(localStorage.getItem("nn"));    
-  }else{
-    // Making the neural network      
-    nn = new NeuralNetwork(784, 64, 3);    
-  }
-  
-  catsData = loadBytes('data/cats1000.bin');
-  trainsData = loadBytes('data/trains1000.bin');
-  rainbowsData = loadBytes('data/rainbows1000.bin');
+  vm.loadNeuralNetwork();
+
+  vm.labels[0].dataRaw = loadBytes('data/cats1000.bin');
+  vm.labels[1].dataRaw = loadBytes('data/trains1000.bin');
+  vm.labels[2].dataRaw = loadBytes('data/rainbows1000.bin');
+  vm.labels[3].dataRaw = loadBytes('data/bird1000.bin');
 }
 
 
@@ -219,133 +262,31 @@ function setup() {
   cv.parent('sketch-holder');
   background(255);
 
-  // Preparing the data
-  prepareData(cats, catsData, CAT);
-  prepareData(rainbows, rainbowsData, RAINBOW);
-  prepareData(trains, trainsData, TRAIN);
+  for (let i = 0; i < vm.labels.length; i++) {
+    vm.prepareData(vm.labels[i].data, vm.labels[i].dataRaw, vm.labels[i].valor)    
+  }
 
-
-  // Randomizing the data
   let training = [];
-  training = training.concat(cats.training);
-  training = training.concat(rainbows.training);
-  training = training.concat(trains.training);
-
   let testing = [];
-  testing = testing.concat(cats.testing);
-  testing = testing.concat(rainbows.testing);
-  testing = testing.concat(trains.testing);
 
-  let trainButton = select('#train');
-  let epochCounter = 0;
-  trainButton.mousePressed(function() {
-    trainEpoch(training);
-    epochCounter++;
-    const dataTrain = nn.serialize();
-    localStorage.setItem("nn", dataTrain);
-    console.log("Epoch: " + epochCounter);
-  });
+  for (let x = 0; x < vm.labels.length; x++) {
+    training = training.concat(vm.labels[x].data.training);
+    testing = testing.concat(vm.labels[x].data.testing);
+  }  
 
-  let testButton = select('#test');
-  testButton.mousePressed(function() {
-    let percent = testAll(testing);
-    console.log("Percent: " + nf(percent, 2, 2) + "%");
-  });
-
-  let guessButton = select('#guess');
-  guessButton.mousePressed(function() {
-    let inputs = [];
-    let img = get();
-    img.resize(28, 28);
-    img.loadPixels();
-    for (let i = 0; i < vm.len; i++) {
-      let bright = img.pixels[i * 4];
-      inputs[i] = (255 - bright) / 255.0;
-    }
-
-    let guess = nn.predict(inputs);
-    //console.log(guess);
-    let m = max(guess);
-    let classification = guess.indexOf(m);
-    if (classification === CAT) {
-      console.log("cat");
-    } else if (classification === RAINBOW) {
-      console.log("rainbow");
-    } else if (classification === TRAIN) {
-      console.log("train");
-    }
-  });
-
-  let clearButton = select('#clear');
-  clearButton.mousePressed(function() {
-    background(255);
-  });
+  vm.training = training;
+  vm.testing = testing;
+  
 }
-
-function trainEpoch(training) {
-  shuffle(training, true);
-  //console.log(training);
-  // Train for one epoch
-  for (let i = 0; i < training.length; i++) {
-    let data = training[i];
-    let inputs = Array.from(data).map(x => x / 255);
-    let label = training[i].label;
-    let targets = [0, 0, 0];
-    targets[label] = 1;
-    // console.log(inputs);
-    // console.log(targets);
-    nn.train(inputs, targets);
-  }
-}
-
-function testAll(testing) {
-
-  let correct = 0;
-  // Train for one epoch
-  for (let i = 0; i < testing.length; i++) {
-    // for (let i = 0; i < 1; i++) {
-    let data = testing[i];
-    let inputs = Array.from(data).map(x => x / 255);
-    let label = testing[i].label;
-    let guess = nn.predict(inputs);
-
-    let m = max(guess);
-    let classification = guess.indexOf(m);
-    // console.log(guess);
-    // console.log(classification);
-    // console.log(label);
-
-    if (classification === label) {
-      correct++;
-    }
-  }
-  let percent = 100 * correct / testing.length;
-  return percent;
-
-}
-
-function prepareData(category, data, label) {
-  category.training = [];
-  category.testing = [];
-  for (let i = 0; i < totalData; i++) {
-    let offset = i * vm.len;
-    let threshold = floor(0.8 * totalData);
-    if (i < threshold) {
-      category.training[i] = data.bytes.subarray(offset, offset + vm.len);
-      category.training[i].label = label;
-    } else {
-      category.testing[i - threshold] = data.bytes.subarray(offset, offset + vm.len);
-      category.testing[i - threshold].label = label;
-    }
-  }
-}
-
 
 function draw() {
   strokeWeight(8);
   stroke(0);
-  if (mouseIsPressed) {
+  /* WIDTH HEIGHT */
+  if (mouseIsPressed && (pmouseY <= width) && (pmouseY > 0) && (pmouseX <= height) && (pmouseX > 0)) {
     line(pmouseX, pmouseY, mouseX, mouseY);
+    console.log("here!")
+    vm.guessPress();
   }
 }
 

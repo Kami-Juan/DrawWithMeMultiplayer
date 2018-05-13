@@ -5,7 +5,7 @@ class Users{
    }
 
    addUsers( id, name, room ){
-       var user = { id, name, room };
+       var user = { id, name, room, score: 0 };
        this.users.push(user);
        return user;
    }
@@ -24,7 +24,7 @@ class Users{
 
    getUserList( room ){
        var users = this.users.filter( (user) =>  user.room === room );
-       var namesArray = users.map( (user) => user.name);
+       var namesArray = users.map( (user) => user);
        return namesArray; 
    }
 
@@ -41,6 +41,14 @@ class Users{
    removeRoom( room ){
        this.room.splice(this.room.indexOf(room),1);
        return room;
+   }
+
+   setScore ( id, score ) {
+       for (let i = 0; i < this.users.length; i++) {
+            if( this.users[i].id === id ) {
+                this.users[i].score = score;
+            }
+       }
    }
 }
 

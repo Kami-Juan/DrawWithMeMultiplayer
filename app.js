@@ -35,18 +35,7 @@ app.use('/', index);
 app.use('/login', login);
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
-
-  /* SI SE DESCONECTÓ */
-  /* socket.on('disconnect', function(){
-    console.log('user disconnected');
-  }); */
-
-  /* PUNTAJE! */
-  // socket.on('puntaje', function(score){
-  //   console.log('puntaje: ' + score);
-  //   io.emit('resultado', parseFloat(score) + 10);
-  // });
+  console.log('Se conectó un usuario');
 
   socket.on('join', (params, callback) => {
     var user = usuarios.getUserList(params.room).filter( (name) => name === params.name );
@@ -58,10 +47,13 @@ io.on('connection', (socket) => {
         return callback(`El usuario ${ params.name } ya existe en el room ${ params.room }`);
     }
 
+    console.log(params.room);
+    console.log(params.name);
+
     socket.join(params.room);
     usuarios.removeUser(socket.id);
 
-    usuarios.addusuarios( socket.id, params.name, params.room );
+    usuarios.addUsers( socket.id, params.name, params.room );
     usuarios.addRoom( params.room );   
     
     io.to(params.room).emit('updateUserList', usuarios.getUserList(params.room));
@@ -80,6 +72,15 @@ io.on('connection', (socket) => {
   socket.on('roomie', ( params, callback ) => {
     io.emit('room',usuarios.room );
     callback();
+  });
+
+  socket.on('updateScore', ( score) => {
+    var user = usuarios.getUser(socket.id);
+    usuarios.setScore(socket.id, score);
+    if( user ){
+      io.to(user.room).emit('updateUserList', usuarios.getUserList(user.room));
+      io.to(user.room).emit('newScoreUser', {from: `${user.name}`, texto: `Su score es de ${user.score}`});         
+    }
   });
 
   socket.on('disconnect', () => {

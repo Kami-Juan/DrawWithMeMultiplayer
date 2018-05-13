@@ -14,32 +14,30 @@
 </head>
 
 <body>
+
    <div id="app">
       <nav>
          <div class="nav-wrapper grey darken-4">
-            <a href="#" class="brand-logo center-align">X</a>
-            <a href="#" data-target="slide-out" class="sidenav-trigger">
-               <i class="material-icons">menu</i>
-            </a>
+            <a href="#" class="brand-logo center-align">Drawn!</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                <li>
-                  <a id="train" class="waves-effect waves-light btn grey lighten-4">
+                  <a id="train" class="waves-effect waves-light btn grey lighten-4"  @click="train" :disabled="isTrained">
                      <span class="grey-text text-darken-4">Entrenar</span>
                   </a>
                </li>
                <li>
-                  <a id="test" class="waves-effect waves-light btn grey lighten-4">
-                     <span class="grey-text text-darken-4">Testear</span>
+                  <a id="test" class="waves-effect waves-light btn grey lighten-4" @click="test">
+                     <span class="grey-text text-darken-4" >Testear</span>
                   </a>
                </li>
                <li>
-                  <a id="clear" class="waves-effect waves-light btn grey lighten-4">
-                     <span class="grey-text text-darken-4">Limpiar dibujo</span>
+                  <a id="clear" class="waves-effect waves-light btn grey lighten-4" @click="clearCanvas">
+                     <span class="grey-text text-darken-4" >Limpiar dibujo</span>
                   </a>
                </li>
                <li>
-                  <a id="guess" class="waves-effect waves-light btn grey lighten-4">
-                     <span class="grey-text text-darken-4">Estimar</span>
+                  <a id="guess" class="waves-effect waves-light btn grey lighten-4" @click="guess">
+                     <span class="grey-text text-darken-4" >Estimar</span>
                   </a>
                </li>
                <li>
@@ -50,59 +48,10 @@
             </ul>
          </div>
       </nav>
-      <ul id="slide-out" class="sidenav">
-         <li>
-            <div class="user-view">
-               <div class="background">
-                  <img src="">
-               </div>
-               <a href="#user">
-                  <img class="circle" src="">
-               </a>
-               <a href="#name">
-                  <span class="white-text name">John Doe</span>
-               </a>
-               <a href="#email">
-                  <span class="white-text email">jdandturk@gmail.com</span>
-               </a>
-            </div>
-         </li>
-         <li>
-            <a href="#!">
-               <i class="material-icons">cloud</i>First Link With Icon</a>
-         </li>
-         <li>
-            <a id="clear" class="waves-effect waves-light btn grey lighten-4">
-               <span class="grey-text text-darken-4">Limpiar dibujo</span>
-            </a>
-         </li>
-         <li>
-            <div class="divider"></div>
-         </li>
-         <li>
-            <a class="subheader">Subheader</a>
-         </li>
-         <li>
-            <a class="waves-effect" href="#!">Third Link With Waves</a>
-         </li>
-      </ul>
-
+      <template>    
       <div class="container">
-         <div class="row">
-            <div class="col m6">
-               <h3>Dibuja un:
-                  <span id="nameDraw"></span>
-               </h3>
-               <h3>Puntaje:
-                  <span id="score"></span>
-               </h3>
-               <h3>Porcentaje de éxito del:
-                  <span id="porcent"></span>
-               </h3>
-               <ul id="data-porcent">
-               </ul>
-            </div>
-            <div class="col m6 loadingclass">
+         <div class="row">            
+            <div class="col m12 loadingclass">
                <div id="p5_loading">
                   <div class="preloader-wrapper big active">
                      <div class="spinner-layer spinner-blue-only">
@@ -119,22 +68,63 @@
                   </div>
                </div>
             </div>
-            <div class="col m6">
+            <div class="col m12">
 
                <div id="sketch-holder"></div>
             </div>
          </div>
       </div>
+      <div class="container">
+            <div class="col m6">
+               <h3>Dibuja un:
+                  ${ tipoDibujo[0].tipo }
+               </h3>
+               <h3>Puntaje:
+                  ${ score }
+               </h3>
+               <h3>Porcentaje de éxito del:
+                  <span id="porcent"></span>
+               </h3>
+               <h3> ${ nombreDibujo }
+               </h3>
+               <ul id="data-porcent">
+               </ul>
+            </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col m6">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Puntuación</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(user, i) in usuarios" :key="user.id">
+                  <td>${ user.name }</td>
+                  <td>${ user.score }</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col m6">
+            <ul>
+              <li v-for="(msg,i) in mensajes" :key="i">${msg.from}: ${ msg.texto }</li>
+            </ul>
+          </div>
+        </div>        
+      </div>
+      </template>
    </div>
    <script src="/socket.io/socket.io.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
    <script type="text/javascript" src="lib/jquery-3.3.1.slim.min.js"></script>
    <script type="text/javascript" src="lib/materialize.min.js"></script>
    <script type="text/javascript" src="libraries/p5.min.js"></script>
    <script type="text/javascript" src="libraries/p5.dom.min.js"></script>
    <script type="text/javascript" src="loadbinary.js"></script>
-   <script type="text/javascript" src="traintest.js"></script>
-   <script type="text/javascript" src="dataprep.js"></script>
    <script type="text/javascript" src="sketch.js"></script>
    <script type="text/javascript" src="libraries/nn.js"></script>
    <script type="text/javascript" src="libraries/matrix.js"></script>
