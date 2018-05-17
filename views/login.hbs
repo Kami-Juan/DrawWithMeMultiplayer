@@ -1,47 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-   <title>Document</title>
+   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   <link rel="stylesheet" href='/stylesheets/login.css'>
+   <link rel='stylesheet' href='/lib/animate.css' />
+   <title>DrawnWithMe | Login</title>
 </head>
-
 <body>
    <div id="app">
-      <form @submit.prevent="login">
-         <input type="text" v-model="room">
-         <input type="text" v-model="username">
-         <button type="submit">Entrar</button>
-      </form>
+      <template>
+         <div class="container">
+            <div class="section-rooms animated fadeIn">
+               <div class="lista-rooms">
+                  <h2>Rooms Activos!</h2>
+                  <ul>
+                     <li v-for="(room, i) in rooms">${ room }</li>
+                  </ul>
+               </div>
+            </div>
+            <div class="section-login animated fadeIn">            
+               <div class="titulo-login">
+                  <i class="material-icons icon-draw">border_color</i>
+                  <h2>¡Elige tu área de dibujo!</h2>
+                  <h3>Escribe el room y username para iniciar</h3>
+               </div>
+               <form @submit.prevent="login">
+                  <input type="text" v-model="room" placeholder="room*">
+                  <input type="text" v-model="username" placeholder="username*">
+                  <button type="submit">Entrar</button>
+               </form>
+            </div>
+         </div>
+      </template>
    </div>
+   <script src="/socket.io/socket.io.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-   <script>
-      new Vue({
-         el: "#app",
-         data: {
-            room: "",
-            username: ""
-         },
-         methods: {
-            login() {
-               console.log("Hola")
-               localStorage.setItem("room", this.room);
-               localStorage.setItem("username", this.username);
-               window.location.href = "/"
-            }
-         },
-         mounted() {
-            if (localStorage.getItem("room") && localStorage.getItem("username")) {
-               window.location.href = "/"
-            }
-
-
-         }
-      });
-   </script>
-
+   <script src="login.js"></script>
 </body>
 
 </html>

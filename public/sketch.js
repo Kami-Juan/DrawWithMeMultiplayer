@@ -3,6 +3,7 @@ let vm = new Vue({
   delimiters: ['${', '}'],
   data: {
     epochCounter: 0,
+    nombreRoom: "",
     nn: "",
     len: 784,
     totalData: 1000,    
@@ -33,6 +34,12 @@ let vm = new Vue({
         valor: 3,
         dataRaw: "",
         data: {}
+      },
+      {
+        nombre: "estrella",
+        valor: 4,
+        dataRaw: "",
+        data: {}
       }
     ],
     training: [],
@@ -42,6 +49,7 @@ let vm = new Vue({
     usuarios: "",
     msg: "",
     isTrained: false,
+    porcentajeExito: "",
     mensajes: [],
     tipoDibujo: [
       {
@@ -59,6 +67,10 @@ let vm = new Vue({
       {
         tipo:"pajaro",
         valor: 3
+      },
+      {
+        tipo:"estrella",
+        valor: 4
       }
     ]
   },
@@ -87,7 +99,7 @@ let vm = new Vue({
         let data = this.training[i];
         let inputs = Array.from(data).map(x => x / 255);
         let label = this.training[i].label;
-        let targets = [0, 0, 0, 0];
+        let targets = [0, 0, 0, 0, 0];
         targets[label] = 1;
         this.nn.train(inputs, targets);
       }
@@ -121,16 +133,54 @@ let vm = new Vue({
       }
     },
     train () {
-      this.trainEpoch();
-      this.epochCounter++;
-      const dataTrain = this.nn.serialize();
-      localStorage.removeItem("nn");
-      localStorage.setItem("nn", dataTrain);
-      console.log("Epoch: " + this.epochCounter);
+      swal({
+        closeOnClickOutside: false,
+        title: "¿Deseas entrenar la red neuronal?",
+        text: "Se entrenará la red neuronal. El navegador suele tardar en reaccionar al entrenarla. No desesperes",
+        buttons: {
+          entrenar: "Entrenar",
+          cerrar: {
+            closeModal: true,
+            text: "Cancelar",
+            value: null,
+            className: "swal-button--danger"
+          }
+        }
+      })
+      .then((entrenar) => {
+        if (entrenar) {
+          this.trainEpoch();
+          this.epochCounter++;
+          const dataTrain = this.nn.serialize();
+          localStorage.removeItem("nn");
+          localStorage.setItem("nn", dataTrain);
+          console.log("Epoch: " + this.epochCounter);
+        }
+      });
+      
     },
     test () {
-      let percent = this.testAll(this.testing);
-      console.log("Percent: " + nf(percent, 2, 2) + "%");
+      swal({
+        closeOnClickOutside: false,
+        title: "¿Deseas testear la red neuronal?",
+        text: "¡Se obtendrá el porcentaje de éxito de tu neurona!. El navegador suele tardar en reaccionar al testearla. No desesperes",
+        buttons: {
+          test: "Testear",
+          cerrar: {
+            closeModal: true,
+            text: "Cancelar",
+            className: "swal-button--danger",
+            value: null,
+          }
+        }
+      })
+      .then((test) => {
+        if (test) {
+          let percent = this.testAll(this.testing);
+          this.porcentajeExito = nf(percent, 2, 2) + "%";
+          console.log("Percent: " + nf(percent, 2, 2) + "%");
+        }
+      });      
     },
     clearCanvas () {
       background(255);
@@ -156,17 +206,18 @@ let vm = new Vue({
     playGame (type) {
       console.log(type);
       let isError = true;
-      for (let i = 0; i < this.labels.length; i++) {
-        if(type === this.tipoDibujo[0].valor){
-          console.log(this.tipoDibujo[0].tipo);
-          this.score++;
-          this.clearCanvas();
-          shuffle(this.tipoDibujo, true)
-          // console.log(this.tipoDibujo)
-          isError = false
-          this.socket.emit('updateScore', this.score);
-        }      
-      }
+      if(type === this.tipoDibujo[0].valor){
+        console.log(this.tipoDibujo[0].tipo);
+        this.score++;
+        this.clearCanvas();
+        shuffle(this.tipoDibujo, true)
+        // console.log(this.tipoDibujo)
+        isError = false
+        this.socket.emit('updateScore', this.score, (res) => {
+          console.log(res);
+        });
+      }      
+
       if(isError) {
         this.score--;
         this.socket.emit('updateScore', this.score);
@@ -199,10 +250,21 @@ let vm = new Vue({
         case 3:
           this.nombreDibujo = "Es un pájaro!";          
         break;
+        case 4:
+          this.nombreDibujo = "Es una estrella!";          
+        break;
         default:
           this.nombreDibujo = "NO se que es :c!";
         break;
       }
+    },
+    scrollChat () {
+      
+    },
+    logout () {
+      localStorage.removeItem("room");
+      localStorage.removeItem("username");
+      window.location.href = '/login'; 
     }
   },
   mounted() {
@@ -210,17 +272,30 @@ let vm = new Vue({
     let params = {};
     params.room = localStorage.getItem("room");
     params.name = localStorage.getItem("username");
+    this.nombreRoom = params.room;
 
     this.socket.on('connect', () => {
       
       this.socket.emit('join', params ,(err) =>{
         if(err){
           console.log(err)
-          localStorage.removeItem("room");
-          localStorage.removeItem("username");
-          window.location.href = '/login';    
+
+          swal({
+            closeOnClickOutside: false,
+            title: "¡No puedes estar aquí!",
+            text: err,
+            button: "Salir"
+          })
+          .then((test) => {
+            this.logout();
+          });               
         }else{
-          console.log('No hay errores');
+          swal({
+            closeOnClickOutside: false,
+            title: "¡Bienvenido al room "+ params.room +"!",
+            text: "Si es tu primera vez juganzo, por favor entrena a la red neuronal para iniciar",
+            button: "Ok"
+          })          
           this.socket.emit('roomie', params, () => {});
         }
       });
@@ -235,12 +310,40 @@ let vm = new Vue({
       console.log(users)
     });
 
+    this.socket.on('winner', (msg) => {
+      this.mensajes.push(msg);
+      this.scrollChat();
+      if(this.score !== msg.score ){
+        swal({
+          title: "Eliminado por " + msg.from + ", score: " + msg.score,
+          text: "¡Perdiste, prueba suerte en otra sesión!",
+          icon: "error",
+          button: "Salir"
+        })
+        .then((willDelete) => {
+          this.logout();
+        });
+        return;
+      }
+      swal({
+        title: "1# Victory Royal!",
+        text: "¡Eres un Dios de los dibujos!",
+        icon: "success",
+        button: "Salir"
+      })
+      .then((willDelete) => {
+        this.logout();
+      });
+    });
+
     this.socket.on('newMensaje', (msg) => {
       this.mensajes.push(msg);
+      this.scrollChat();
     });
 
     this.socket.on('newScoreUser',  (msg) => {
       this.mensajes.push(msg);
+      this.scrollChat();
     });
   }
 });
@@ -254,11 +357,14 @@ function preload() {
   vm.labels[1].dataRaw = loadBytes('data/trains1000.bin');
   vm.labels[2].dataRaw = loadBytes('data/rainbows1000.bin');
   vm.labels[3].dataRaw = loadBytes('data/bird1000.bin');
+  vm.labels[4].dataRaw = loadBytes('data/star1000.bin');
 }
 
 
 function setup() {
-  const cv = createCanvas(400, 400);
+  const cv = createCanvas(windowHeight/100*60, windowHeight/100*60);
+  // console.log(windowHeight/100*60);
+  // console.log(displayHeight/100*.60);
   cv.parent('sketch-holder');
   background(255);
 

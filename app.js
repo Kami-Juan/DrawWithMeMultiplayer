@@ -74,12 +74,15 @@ io.on('connection', (socket) => {
     callback();
   });
 
-  socket.on('updateScore', ( score) => {
+  socket.on('updateScore', ( score, callback) => {
     var user = usuarios.getUser(socket.id);
     usuarios.setScore(socket.id, score);
     if( user ){
       io.to(user.room).emit('updateUserList', usuarios.getUserList(user.room));
-      io.to(user.room).emit('newScoreUser', {from: `${user.name}`, texto: `Su score es de ${user.score}`});         
+      io.to(user.room).emit('newScoreUser', {from: `${user.name}`, texto: `Su score es de ${user.score}`});
+      if( user.score === 5 ) {
+        io.to(user.room).emit('winner', {from: `${user.name}`, texto: `Eres un ganador :D`, score: user.score});
+      }
     }
   });
 

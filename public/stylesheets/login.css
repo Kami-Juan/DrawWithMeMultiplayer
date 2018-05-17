@@ -1,0 +1,110 @@
+* {
+   margin: 0;
+   padding: 0;
+   box-sizing: content-box;
+ }
+ 
+ body { 
+   text-rendering: optimizeLegibility;
+   font-size: 16px;
+   background-color: #1488c6;
+   font-family: 'Lato', sans-serif;
+ }
+
+ .icon-draw {
+   font-size: 60px;
+   margin-bottom: 10px;
+ }
+
+ .container {
+    width: 980px;
+    margin: auto;
+    display: flex;
+    height: 100vh;
+ }
+
+ .section-rooms {
+   width: 40%;
+   box-sizing: border-box;
+
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+ }
+
+ .section-rooms > .lista-rooms{
+   max-height: 40%;
+   width: 70%;
+   text-align: center;   
+   color: white;
+ } 
+
+ .section-rooms > .lista-rooms > ul {
+   overflow-y: scroll;
+ }
+
+ .section-rooms > .lista-rooms > ul > li {
+   padding: 5px;
+   font-weight: bold;
+ }
+
+ .section-rooms > .lista-rooms > ul > li:hover {
+   transition: 0.7s background-color;
+   transition: 0.7s color;
+   background-color: rgba(255, 255, 255, 0.795);
+   color: black;
+   cursor: pointer;
+ }
+
+ .section-login {
+   width: 60%;
+   box-sizing: border-box;
+
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+ }
+ 
+ .section-login > form {
+    display: flex;
+    flex-direction: column;
+ }
+
+ .section-login > form > input {
+   padding: 15px;
+   width: 300px;
+   border: none;
+   margin-bottom: 15px;
+
+   text-align: center;
+   font-weight: bold;
+   font-size: 18px;
+ }
+
+ .section-login > form > input::placeholder {
+   text-align: center;
+   font-weight: bold;
+   font-size: 18px;
+ }
+
+ .section-login > form > button {
+    width: 30%;
+    height: 30px;
+    margin: auto;
+    background-color: white;
+    color: #1488c6;
+    border: none;
+    padding: 5px;
+    font-weight: bold;
+    font-size: 16px;
+ }
+
+ .section-login > .titulo-login {
+   display: flex;
+   flex-direction: column;
+   text-align: center;
+   color: white;
+   margin-bottom: 30px;
+ }
