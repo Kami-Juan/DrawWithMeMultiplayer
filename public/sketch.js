@@ -75,9 +75,15 @@ let vm = new Vue({
     ]
   },
   methods: {
-    enviarScore() {
-      this.socket.emit("puntaje", this.puntaje);
-    },
+    /**
+     * Prepara la información de las imágenes poblando los objetos.
+     * 
+     * @since version 1.0.0  
+     * @param string category El tipo de categoría de la imagen
+     * @param object data La información inicial de las imágenes
+     * @param integer label el valor de la categoria
+     * @return void
+     */
     prepareData (category, data, label) {
       category.training = [];
       category.testing = [];
@@ -93,6 +99,12 @@ let vm = new Vue({
         }
       }
     },
+    /**
+     * Entrena la red neuronal.
+     * 
+     * @since version 1.0.0
+     * @return void
+     */
     trainEpoch () {
       shuffle(this.training, true);
       for (let i = 0; i < this.training.length; i++) {
@@ -104,6 +116,12 @@ let vm = new Vue({
         this.nn.train(inputs, targets);
       }
     },
+    /**
+     * Testea con la información del objeto test.
+     * 
+     * @since version 1.0.0
+     * @return float 
+     */
     testAll () {
       let correct = 0;
       // Train for one epoch
@@ -123,6 +141,12 @@ let vm = new Vue({
       let percent = 100 * correct / this.testing.length;
       return percent;
     },
+    /**
+     * Carga la red nueronal guardada en el localstorage o crea una nueva desde cero.
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     loadNeuralNetwork () {
       if( localStorage.getItem("nn") ){
         this.nn = NeuralNetwork.deserialize(localStorage.getItem("nn"));    
@@ -132,6 +156,12 @@ let vm = new Vue({
         this.nn = new NeuralNetwork(784, 64, this.labels.length);    
       }
     },
+    /**
+     * Inicia el método para entrenar la red neuronal. Guarda en el localstorage la información
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     train () {
       swal({
         closeOnClickOutside: false,
@@ -159,6 +189,12 @@ let vm = new Vue({
       });
       
     },
+    /**
+     * Inicia el método para testear la red neuronal. Despliega el porcentaje de éxito de la red neuronal
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     test () {
       swal({
         closeOnClickOutside: false,
@@ -182,10 +218,22 @@ let vm = new Vue({
         }
       });      
     },
+    /**
+     * Limpia el lienzo del dibujo.
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     clearCanvas () {
       background(255);
       this.nombreDibujo = "";
     },
+    /**
+     * Determina que tipo de dibujo es el dibujado en el lienzo.
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     guess () {
       let inputs = [];
       let img = get();
@@ -199,22 +247,25 @@ let vm = new Vue({
       let guess = this.nn.predict(inputs);
       let m = max(guess);
       let classification = guess.indexOf(m);
-      // console.log(classification);
+      console.log(classification);
       this.playGame(classification);
       this.nombreDibujo = "";
     },
+    /**
+     * Envia informacion al servidor del score. Determina la puntación del juego,
+     * 
+     * @since version 1.0.0
+     * @param string type El tipo de categoría de la imagen
+     * @return void 
+     */
     playGame (type) {
-      console.log(type);
       let isError = true;
       if(type === this.tipoDibujo[0].valor){
-        console.log(this.tipoDibujo[0].tipo);
         this.score++;
         this.clearCanvas();
         shuffle(this.tipoDibujo, true)
-        // console.log(this.tipoDibujo)
         isError = false
         this.socket.emit('updateScore', this.score, (res) => {
-          console.log(res);
         });
       }      
 
@@ -223,6 +274,12 @@ let vm = new Vue({
         this.socket.emit('updateScore', this.score);
       }
     },
+    /**
+     * Determina que tipo de dibujo es del lienzo (diseñado para tiempo real).
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     guessPress () {
       let inputs = [];
       let img = get();
@@ -258,15 +315,24 @@ let vm = new Vue({
         break;
       }
     },
-    scrollChat () {
-      
-    },
+    /**
+     * Termina la sesión del room.
+     * 
+     * @since version 1.0.0
+     * @return void 
+     */
     logout () {
       localStorage.removeItem("room");
       localStorage.removeItem("username");
       window.location.href = '/login'; 
     }
   },
+  /**
+   * Lógica del juego con sockets. 
+   * 
+   * @since version 1.0.0
+   * @return void 
+   */
   mounted() {
     this.socket = io();
     let params = {};
@@ -278,8 +344,6 @@ let vm = new Vue({
       
       this.socket.emit('join', params ,(err) =>{
         if(err){
-          console.log(err)
-
           swal({
             closeOnClickOutside: false,
             title: "¡No puedes estar aquí!",
@@ -307,12 +371,10 @@ let vm = new Vue({
 
     this.socket.on('updateUserList', (users) => {
       this.usuarios = users;
-      console.log(users)
     });
 
     this.socket.on('winner', (msg) => {
       this.mensajes.push(msg);
-      this.scrollChat();
       if(this.score !== msg.score ){
         swal({
           title: "Eliminado por " + msg.from + ", score: " + msg.score,
@@ -338,18 +400,20 @@ let vm = new Vue({
 
     this.socket.on('newMensaje', (msg) => {
       this.mensajes.push(msg);
-      this.scrollChat();
     });
 
     this.socket.on('newScoreUser',  (msg) => {
       this.mensajes.push(msg);
-      this.scrollChat();
     });
   }
 });
 
-let nn;
-
+/**
+ * Pobla la información de los .bin a su tipo de objeto correspondiente. 
+ * 
+ * @since version 1.0.0
+ * @return void 
+ */
 function preload() {
   vm.loadNeuralNetwork();
 
@@ -360,11 +424,15 @@ function preload() {
   vm.labels[4].dataRaw = loadBytes('data/star1000.bin');
 }
 
+/**
+ * Inicializa la información y pobla los objetos de las imagenes. 
+ * 
+ * @since version 1.0.0
+ * @return void 
+ */
 
 function setup() {
   const cv = createCanvas(windowHeight/100*60, windowHeight/100*60);
-  // console.log(windowHeight/100*60);
-  // console.log(displayHeight/100*.60);
   cv.parent('sketch-holder');
   background(255);
 
@@ -391,7 +459,6 @@ function draw() {
   /* WIDTH HEIGHT */
   if (mouseIsPressed && (pmouseY <= width) && (pmouseY > 0) && (pmouseX <= height) && (pmouseX > 0)) {
     line(pmouseX, pmouseY, mouseX, mouseY);
-    console.log("here!")
     vm.guessPress();
   }
 }
